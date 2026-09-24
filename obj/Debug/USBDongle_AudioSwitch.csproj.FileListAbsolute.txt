@@ -1,0 +1,10 @@
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\bin\Debug\audio_switch.ps1
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\bin\Debug\USBDongle_AudioSwitch.exe.config
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\bin\Debug\USBDongle_AudioSwitch.exe
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\bin\Debug\USBDongle_AudioSwitch.pdb
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\obj\Debug\USBDongle_AudioSwitch.csproj.AssemblyReference.cache
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\obj\Debug\USBDongle_AudioSwitch.Properties.Resources.resources
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\obj\Debug\USBDongle_AudioSwitch.csproj.GenerateResource.cache
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\obj\Debug\USBDongle_AudioSwitch.csproj.CoreCompileInputs.cache
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\obj\Debug\USBDongle_AudioSwitch.exe
+C:\Users\a7578\RiderProjects\USBDongle_AudioSwitch\USBDongle_AudioSwitch\obj\Debug\USBDongle_AudioSwitch.pdb

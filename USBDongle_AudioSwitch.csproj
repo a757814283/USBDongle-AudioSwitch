@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{3980C69F-0D7B-4E8B-AF50-189BA1C166C5}</ProjectGuid>
+        <OutputType>WinExe</OutputType>
+        <RootNamespace>USBDongle_AudioSwitch</RootNamespace>
+        <AssemblyName>USBDongle_AudioSwitch</AssemblyName>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <Deterministic>true</Deterministic>
+        <!-- Black line art on an opaque white plate. The plate is what lets one
+             file serve both Windows themes: it reads as a white icon on the
+             dark taskbar and blends into a light one, leaving only the black
+             drawing visible. The notification area needs real transparency
+             instead, so it uses the separate on-alpha icons below. -->
+        <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+        <!-- 7.3 builds with every compiler from VS2017 onward, including the
+             Roslyn bundled with JetBrains Rider. -->
+        <LangVersion>7.3</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Drawing"/>
+        <Reference Include="System.Runtime.Serialization"/>
+        <Reference Include="System.Windows.Forms"/>
+        <Reference Include="System.Xml"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="AppConfig.cs"/>
+        <Compile Include="AppIcons.cs"/>
+        <Compile Include="AppPaths.cs"/>
+        <Compile Include="AutoStartManager.cs"/>
+        <Compile Include="Hex.cs"/>
+        <Compile Include="Localization.cs"/>
+        <Compile Include="Logger.cs"/>
+        <Compile Include="LogWheelRouter.cs"/>
+        <Compile Include="Program.cs"/>
+        <Compile Include="SystemTheme.cs"/>
+        <Compile Include="MainForm.cs">
+            <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="MainForm.Designer.cs">
+            <DependentUpon>MainForm.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Audio\AudioDeviceInfo.cs"/>
+        <Compile Include="Audio\AudioDeviceService.cs"/>
+        <Compile Include="Audio\AudioSwitcher.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Interop\AudioInterop.cs"/>
+        <Compile Include="Interop\ComApartment.cs"/>
+        <Compile Include="Interop\SetupApi.cs"/>
+        <Compile Include="Interop\Win32.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Monitoring\HidDeviceLocator.cs"/>
+        <Compile Include="Monitoring\HidMonitor.cs"/>
+        <Compile Include="Monitoring\HidSignal.cs"/>
+        <Compile Include="Monitoring\MonitorController.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <EmbeddedResource Include="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+            <SubType>Designer</SubType>
+        </EmbeddedResource>
+        <Compile Include="Properties\Resources.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+        <None Include="Properties\Settings.settings">
+            <Generator>SettingsSingleFileGenerator</Generator>
+            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        </None>
+        <Compile Include="Properties\Settings.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Settings.settings</DependentUpon>
+            <DesignTimeSharedInput>True</DesignTimeSharedInput>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="App.config"/>
+        <None Include="build.ps1"/>
+        <None Include="README.md"/>
+        <None Include="README_CN.md"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="audio_switch.ps1">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <!-- Loaded by AppIcons at runtime, not by the shell. The exe icon
+             itself comes from the ApplicationIcon property above.
+             The two tray files hold the same drawing in opposite ink colours:
+             the notification area has no plate to lend it contrast, so the
+             artwork itself has to follow the taskbar theme. AppIcons picks
+             between them. -->
+        <EmbeddedResource Include="Resources\app.ico"/>
+        <EmbeddedResource Include="Resources\tray-white.ico"/>
+        <EmbeddedResource Include="Resources\tray-black.ico"/>
+        <!-- Art masters make_icon.py rebuilds from. Not shipped and not
+             embedded - nothing loads them at runtime, they are only read back
+             by the script to keep a rebuild byte-stable. -->
+        <None Include="assets\make_icon.py"/>
+        <None Include="assets\art-black.ico"/>
+        <None Include="assets\art-white.ico"/>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+</Project>

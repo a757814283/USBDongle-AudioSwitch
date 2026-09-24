@@ -20,7 +20,7 @@ build.
 
 ---
 ## Tested Devices:
-Alienware Pro Headset
+1. Alienware Pro Headset
 
 ## Contents
 

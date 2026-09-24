@@ -26,7 +26,6 @@ signature/checksum feedback, and installs per-user with no UAC prompt.
 - [How it works](#how-it-works)
 - [Requirements](#requirements)
 - [Building](#building)
-- [Packaging an installer (MSI)](#packaging-an-installer-msi)
 - [Running](#running)
 - [Using the window](#using-the-window)
 - [Configuration file](#configuration-file)
@@ -118,12 +117,6 @@ Output: `bin\Release\USBDongle_AudioSwitch.exe`
 | `-MSBuildPath <path>` | Use this `MSBuild.exe`, skipping the automatic search |
 | `-NoFrameworkPathOverride` | Do **not** fall back when the targeting pack is missing, so real environment problems surface |
 
-### MSBuild search order
-
-1. The path given by `-MSBuildPath`
-2. A Visual Studio / Build Tools installation (via `vswhere.exe`)
-3. `msbuild` on `PATH`
-4. The MSBuild bundled with JetBrains Rider (scoop or Toolbox installs)
 
 ### About the targeting pack
 
@@ -143,50 +136,6 @@ prints which path it actually used.
 
 ---
 
-## Packaging an installer (MSI)
-
-```powershell
-cd USBDongle_AudioSwitch
-powershell -File build-msi.ps1
-```
-
-Output: `dist\USBDongle_AudioSwitch-<version>.msi`. The script calls `build.ps1`
-first and then packages with WiX; `-SkipApp` skips the compile and packages
-whatever is already in `bin\`.
-
-### Prerequisites
-
-```powershell
-scoop install wixtoolset versions/dotnet-sdk-lts
-wix eula accept wix7      # WiX 7 needs the OSMF terms accepted once
-```
-
-### Installer behaviour
-
-| Item | Behaviour |
-| --- | --- |
-| Name Windows shows | `USBDongle AudioSwitch` — in Apps & features, the Start menu folder, both shortcuts, and the exe's Properties → Details |
-| Administrator rights | **Not required, no UAC prompt** |
-| Install location | `%LOCALAPPDATA%\Programs\USBDongle_AudioSwitch` |
-| Shortcuts | Start menu and desktop, both pointing at the installed exe |
-| Uninstall | Listed under "Apps & features", or `msiexec /x` |
-| Upgrade | Fixed UpgradeCode, so it installs straight over an older version |
-| Silent install | `msiexec /i <msi> /qn` |
-
-The install-time name is **fixed English**, unlike everything inside the program:
-it is a product name rather than UI text, so it does not follow the in-app
-language switch. The `.wxs` spells it in three places (`Package/@Name`, the Start
-Menu folder, the two `Shortcut/@Name`) exactly so they cannot drift apart. The
-window title and the tray tooltip are separate, localized strings — see
-[Using the window](#using-the-window).
-
-**On uninstall** it clears the HKCU autostart entry (otherwise a dead entry
-pointing at a deleted exe would be left behind) but **keeps** the configuration
-and logs under `%APPDATA%`, so settings survive a reinstall. Removing the
-autostart entry is done by a custom action: that registry value is written by the
-program at runtime and the MSI does not "own" it, so the standard component rules
-cannot reclaim it.
-
 > One known detail: under an **administrator account** the "Apps & features" entry
 > lands in `HKLM` rather than `HKCU`, making it visible to other users on the
 > machine. That is documented Windows Installer behaviour for `ALLUSERS=2`
@@ -203,22 +152,8 @@ anything, because WiX 4+ differs from v3 in ways that are not obvious:
   "compare by assembly version"), and rejects assemblies without a strong name.
 - `CustomAction` no longer has an `Exe` attribute; the whole command line goes in
   `ExeCommand`.
-- **String literals in MSI conditions must use double quotes.** Writing
-  `REMOVE~='ALL'` with single quotes makes Windows Installer reject the action
-  with error 2717, and the log only says the condition is wrong — never that the
-  quoting is.
-- `Scope="perUser"` already sets the "UAC compliant" bit (Word Count bit 3) in the
-  summary information. Do **not** also hand-write `ALLUSERS=2` /
-  `MSIINSTALLPERUSER=1`: MSI rejects the latter and deletes the former, which only
-  adds noise to the log.
 
 ---
-
-## Running
-
-```powershell
-& '.\bin\Release\USBDongle_AudioSwitch.exe'
-```
 
 | Command-line argument | Meaning |
 | --- | --- |

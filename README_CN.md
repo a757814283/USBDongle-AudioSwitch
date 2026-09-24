@@ -358,8 +358,6 @@ USBDongle_AudioSwitch/
 - **重叠 I/O 而非同步读**：同步 `ReadFile` 在设备拔出时可能不会返回，停止监控就会卡死。`HidMonitor` 用 `FILE_FLAG_OVERLAPPED` + `CancelIoEx`，`Stop()` 能在 5 秒内收干净线程。
 - **缓冲区用 `IntPtr` 固定**：`Win32.cs` 里读写缓冲区声明为 `IntPtr` 而非 `byte[]`，配合 `GCHandle.Alloc(..., Pinned)`，防止封送器在重叠操作进行中移动缓冲区。
 - **切换前实时比对**：不缓存"当前默认设备"，而是每次切换前重新读取 —— 用户可能手动改过默认设备，用缓存会错误地跳过本该执行的切换。
-- **C# 源码注释一律用英文。** PowerShell 构建脚本与 WiX 安装包定义目前仍是中文注释与中文输出。
-
 
 ## 致谢
 

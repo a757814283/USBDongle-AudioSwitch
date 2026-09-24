@@ -471,9 +471,6 @@ USBDongle_AudioSwitch/
 - **Live comparison before switching**: the "current default device" is re-read
   before every switch rather than cached — the user may have changed it by hand,
   and a cache would wrongly skip a switch that is needed.
-- **Every C# comment is in English.** The PowerShell build scripts and the WiX
-  installer definition still carry Chinese comments and console output.
-
 ---
 
 ## Credits

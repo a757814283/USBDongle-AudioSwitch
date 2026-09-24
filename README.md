@@ -474,30 +474,6 @@ USBDongle_AudioSwitch/
 - **Every C# comment is in English.** The PowerShell build scripts and the WiX
   installer definition still carry Chinese comments and console output.
 
-### When changing the interface
-
-`MainForm.Designer.cs` is hand-written and follows two WinForms traps that have
-already bitten once each — read those comments before editing:
-
-- **`AutoScaleMode` is `None`, not `Font`.** `AutoScaleDimensions` says `(7,17)`
-  (the measurement for the default 8.25pt font) while the form actually uses
-  `YaHei UI 9pt`. That mismatch makes WinForms recompute `ClientSize` at start-up
-  (820×504 rendered as 957×714) without rescaling the children's anchor margins.
-- **A container's `Size` must be set before its children are added.** WinForms
-  records each anchored child's margins against the parent's size *at the moment
-  it is added*, and a brand new `GroupBox` / `Panel` / `TableLayoutPanel` is only
-  200×100 — so coordinates written for the final size produce **negative** right
-  margins, stretching the drop-downs to 1124px and pushing the buttons right off
-  the window. The four "seed size" assignments in `_root`, `_audioGroup`,
-  `_hidGroup` and `_actionPanel` exist for exactly this reason.
-- **No text is set in the designer.** Every caption comes from
-  `MainForm.ApplyLocalization()`, which is what allows the language to be switched
-  in place. Hard-coding a `.Text` in the designer would leave that caption stuck in
-  one language.
-- **Widths must fit the English string, which is the longer of the two.** English
-  captions run up to 40% wider than the Chinese ones; labels are `AutoSize` and
-  will overlap the control to their right if the budget is too small.
-
 ---
 
 ## Credits

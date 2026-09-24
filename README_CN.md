@@ -2,16 +2,16 @@
 
 **[English documentation → README.md](README.md)**
 
-USB Wireless Headset Audio Auto-Switch 是一个小型 Windows 托盘工具，它会监视无线耳机 USB 接收器发出的 HID 状态报告，并据此切换系统默认播放设备：耳机开机时切换到耳机，关机时切换到扬声器——从此再也无需手动切换。
+这是一个常驻托盘的 Windows 小工具：监听无线耳机 USB 接收器（Dongle）发出的 HID 状态报告，据此切换系统默认播放设备 —— 耳机**开机**时切到耳机，**关机**时切回扬声器，全程无需手动操作。
 
-它是对原始 audio_switch.ps1 的 C# WinForms 重写：无需常驻 PowerShell 进程，不使用 Get-PnpDevice，也不依赖外部 SoundVolumeView.exe。它直接与 IPolicyConfig 交互，每次打开时都会重新解析接收器的设备路径，因此把它移到另一个 USB 端口也能直接正常工作；它还附带一个设备选择器，可提供实时签名/校验和反馈，并且按用户安装，无需 UAC 提示。
+本项目是原 `audio_switch.ps1` 的 C# WinForms 重写版：不再有常驻的 PowerShell 进程，不依赖 `Get-PnpDevice`，也不需要外部 `SoundVolumeView.exe`。它直接调用 IPolicyConfig，每次打开设备前都重新解析接收器的设备路径，因此换到别的 USB 口也能照常工作；界面提供带实时签名/校验和反馈的设备选择，安装时以当前用户身份进行、不弹 UAC。
 
 > 本项目受 [Meladon90/Audio-Switch](https://github.com/Meladon90/Audio-Switch) 启发。
 
 <img width="1232" height="807" alt="image" src="https://github.com/user-attachments/assets/0f00272b-0770-44b9-aa2f-63ba20b7ad89" />
 
 ---
-## 已经在以下设备通过测试:
+## 已测试设备：
 1. Alienware Pro Headset
 
 ## 目录
@@ -19,8 +19,6 @@ USB Wireless Headset Audio Auto-Switch 是一个小型 Windows 托盘工具，�
 - [工作原理](#工作原理)
 - [系统要求](#系统要求)
 - [构建](#构建)
-- [打包成安装程序（MSI）](#打包成安装程序msi)
-- [运行](#运行)
 - [界面说明](#界面说明)
 - [配置文件](#配置文件)
 - [文件位置](#文件位置)
@@ -68,7 +66,7 @@ USB Dongle ──HID 输入报告──▶ HidMonitor ──匹配签名──�
 > **本程序不使用 .NET 8、.NET 6 或任何 .NET Core / .NET 5+ 运行时。**
 > 它是一个 .NET Framework 4.8 程序，`USBDongle_AudioSwitch.exe.config` 里也是这样声明的。如果登录时 Windows 弹出要求安装「.NET 桌面运行时」的提示，那个提示来自机器上的**其他程序**——装 .NET 8 运行时不会改变本程序的任何行为。
 
-.NET Framework 4.8 **目标包（Targeting Pack）不是必需的** —— `build.ps1` 在缺失时会自动改用运行时程序集编译，详见下一节。
+.NET Framework 4.8 **目标包（Targeting Pack）不是必需的** —— `build.ps1` 在缺失时会自动改用运行时程序集编译，详见[构建](#构建)。
 
 ---
 
@@ -88,83 +86,6 @@ powershell -File build.ps1
 | `-Configuration Debug` | 生成 Debug 版本（默认 `Release`） |
 | `-MSBuildPath <路径>` | 显式指定 `MSBuild.exe`，跳过自动查找 |
 | `-NoFrameworkPathOverride` | 目标包缺失时**不**回退，直接按原样编译（用于暴露真实的环境问题） |
-
-### MSBuild 查找顺序
-
-1. `-MSBuildPath` 指定的路径
-2. Visual Studio / Build Tools 安装（经由 `vswhere.exe`）
-3. `PATH` 上的 `msbuild`
-4. JetBrains Rider 自带的 MSBuild（scoop 或 Toolbox 安装）
-
-### 关于目标包
-
-编译 .NET Framework 4.8 项目通常需要目标包，它随 Windows SDK 分发，很多机器并没有装。目标包缺失但 4.8 **运行时**存在时，程序本身可以正常运行，只是编译不过。
-
-`build.ps1` 会检测这种情况，并自动传入：
-
-```
-/p:FrameworkPathOverride=C:\Windows\Microsoft.NET\Framework64\v4.0.30319
-```
-
-让 MSBuild 改用已安装的运行时程序集编译。脚本会打印实际采用的是哪条路径。
-
----
-
-## 打包成安装程序（MSI）
-
-```powershell
-cd USBDongle_AudioSwitch
-powershell -File build-msi.ps1
-```
-
-产物：`dist\USBDongle_AudioSwitch-<版本>.msi`。脚本先调 `build.ps1` 编译主程序，再用 WiX 打包；`-SkipApp` 可跳过编译、直接用现有 `bin\` 产物打包。
-
-### 前置
-
-```powershell
-scoop install wixtoolset versions/dotnet-sdk-lts
-wix eula accept wix7      # WiX 7 首次使用需显式接受 OSMF 协议，只需一次
-```
-
-### 安装包行为
-
-| 项目 | 行为 |
-| --- | --- |
-| 安装后显示的名字 | `USBDongle AudioSwitch` —— 应用和功能、开始菜单文件夹、两个快捷方式，以及 exe 属性 → 详细信息 |
-| 管理员权限 | **不需要，不弹 UAC** |
-| 安装位置 | `%LOCALAPPDATA%\Programs\USBDongle_AudioSwitch` |
-| 快捷方式 | 开始菜单 + 桌面，均指向安装后的 exe |
-| 卸载 | 出现在「应用和功能」，也可 `msiexec /x` |
-| 升级 | 固定 UpgradeCode，可直接覆盖安装 |
-| 静默安装 | `msiexec /i <msi> /qn` |
-
-安装后显示的名字**固定为英文**，这点和程序内部不一样：它是产品名而不是界面文案，所以不跟随界面语言切换。`.wxs` 里这个名字写了三处（`Package/@Name`、开始菜单文件夹、两个 `Shortcut/@Name`），就是为了不让它们各写各的。窗口标题和托盘提示是另一回事，仍会随界面语言切换 —— 见[界面说明](#界面说明)。
-
-**卸载时**：清除 HKCU 的开机自启项（否则会残留一个指向已删除 exe 的死项），但**保留** `%APPDATA%` 下的配置和日志 —— 重装后设置还在。删自启项由一段自定义动作完成：那个注册表值是程序运行时写的，MSI 并不"拥有"它，所以不能靠标准组件机制回收。
-
-> 一个已知细节：在**管理员账户**下，「应用和功能」的条目会落在 `HKLM` 而不是 `HKCU`，因此对同机其他用户也可见。这是 Windows Installer 对 `ALLUSERS=2` 的既定行为（有权限就按机器范围登记），安装本身仍免提权、文件仍在用户目录下。标准用户账户下则登记到 `HKCU`。
-
-### 打包时踩过的坑
-
-`.wxs` 里对应位置都有注释，改动前值得一读 —— WiX 4+ 与 v3 差异不小：
-
-- `Assembly=".net"` 在 WiX 4+ 表示**装进 GAC**（v3 里是"按程序集版本比对"），无强名称的程序集会被直接拒绝。
-- `CustomAction` 不再有 `Exe` 属性，完整命令行要写进 `ExeCommand`。
-- **MSI 条件的字符串字面量必须用双引号。** 用单引号写 `REMOVE~='ALL'` 会让 Windows Installer 以错误 2717 拒绝该动作，而且日志里只报"动作条件错误"，不会说明是引号问题。
-- `Scope="perUser"` 已能正确设置摘要信息中的"UAC 兼容"标志位（Word Count bit 3）。**不要**再手写 `ALLUSERS=2` / `MSIINSTALLPERUSER=1`：MSI 会拒绝后者并删除前者，只给日志添噪音。
-
----
-
-## 运行
-
-```powershell
-& '.\bin\Release\USBDongle_AudioSwitch.exe'
-```
-
-| 命令行参数 | 说明 |
-| --- | --- |
-| （无） | 正常启动，显示主窗口 |
-| `--tray` | 启动后直接最小化到托盘，不显示窗口。开机自启动项写入的就是这个形式 |
 
 ### 单实例
 
@@ -241,40 +162,6 @@ wix eula accept wix7      # WiX 7 首次使用需显式接受 OSMF 协议，只�
 
 - **指针悬停即可滚动**，不需要先点进去。Windows 的滚轮消息是发给*拥有焦点*的窗口而非指针下方的窗口，而日志框是只读的、很少获得焦点，所以由 `LogWheelRouter` 把消息重新投递给它。
 - **向上翻看时不会被新日志拽回底部**。新日志只在视图本来就停在末尾时才自动跟随；一旦你往回翻，位置就固定住，直到你再次滚到底。
-
-### 图标
-
-程序带三套图标，它们刻意不同：
-
-| 文件 | 图形 | 用途 |
-| --- | --- | --- |
-| `Resources/app.ico` | **不透明白底** + 黑色线稿 | 窗口、任务栏按钮、Alt-Tab、资源管理器、exe 本身 |
-| `Resources/tray-white.ico` | 透明背景 + 白色线稿 | **深色**任务栏上的通知区域（托盘） |
-| `Resources/tray-black.ico` | 透明背景 + 黑色线稿 | **浅色**任务栏上的通知区域（托盘） |
-
-不透明白色底板正是让同一个文件在两种 Windows 主题下都成立的原因：在**深色**任务栏上底板读作白色图标，在**浅色**任务栏上底板融入背景、只剩黑色线稿。窗口图标这边不需要任何主题检测。
-
-托盘图标则需要真正的透明通道 —— 通知区域是叠在任务栏上绘制的，用不透明底板会在托盘里显示成一个白方块。少了底板，对比度就只能由线稿本身来承担，所以**托盘图标会跟随任务栏主题**：`AppIcons` 读取 `HKCU\…\Themes\Personalize\SystemUsesLightTheme`，深色任务栏用白色文件、浅色任务栏用黑色文件。取的是 *System*UsesLightTheme 而非 *Apps*UseLightTheme —— Windows 允许两者不一致，而决定任务栏怎么画的是前者。该值从未设置过的机器（Windows 7、Windows 8.1、全新用户配置）按深色处理，也就是此前程序一直画的那一个。
-
-覆盖到的是 Windows 自身的深色/浅色模式，托盘跟随的也是它；**不**覆盖 Windows 11 的「在任务栏上显示主题色」—— 取一个浅色主题色时任务栏被画成浅色，而 `SystemUsesLightTheme` 仍是 0，图标会保持白色。要识别这种情况就得复刻外壳自己的对比度算法，为这一个漏网场景付出的代价更大。
-
-`MainForm.WndProc` 监听外壳用来宣告主题变化的 `WM_SETTINGCHANGE`（其 `lParam` 为 `ImmersiveColorSet`），就地换图标，不会中断监控。两个托盘文件是**同一套图形、同一批尺寸**，所以换的只是墨色，别无其他。
-
-小尺寸是**另画的一套简化字形**，不是把原图缩小：原图中耳罩只占宽度约 22%，到 16px 还不到 4 像素，缩下去会糊成一团、看起来像一张脸。所以 **≤32px** 用重新构图的粗壮形状（大耳罩、无内部线条，16px 不带电源符号），**≥40px** 才使用原始线稿。
-
-托盘图标按显示器的**真实 DPI** 取帧。本进程按设计是 DPI 不感知的 —— 这样在高 DPI 显示器上 Windows 会整体位图缩放窗口，而不是把界面渲染得极小 —— 但不感知的线程被告知所有显示器都是 96 DPI，于是 `SystemInformation.SmallIconSize` 在 150% 缩放下仍返回 16×16，而托盘槽位实际是 24×24，外壳只能把 16px 图标拉大。`AppIcons` 会测量真实的系统 DPI，并选取仍能覆盖槽位的**最小**帧，因此图标只会 1:1 绘制或被**缩小**，永远不会被放大。
-
-图标由 `assets/make_icon.py` 生成（需要 Python + Pillow），输出到 `Resources/`：
-
-```bash
-python assets/make_icon.py
-```
-
-图形母版放在 `assets/art-black.ico` 与 `assets/art-white.ico`。母版所依据的原始 2048px JPEG **不在仓库中**；文件缺失时（正常情况）脚本会直接复用母版里已有的图形，因此重新构建的结果是逐字节稳定的。把该 JPEG 放回 `assets/`，即可改为从原始图形重新生成大尺寸帧。
-
-注意脚本自己写了 `.ico` 容器，没有用 Pillow 的 `ICO` 保存 —— Pillow 会把单张底图重新缩放到每个尺寸，从而丢掉"小尺寸用不同图形"这件事；而且它默认写 PNG 帧，`System.Drawing.Icon` 对 PNG 帧支持不可靠。
-
----
 
 ## 配置文件
 
@@ -473,16 +360,6 @@ USBDongle_AudioSwitch/
 - **切换前实时比对**：不缓存"当前默认设备"，而是每次切换前重新读取 —— 用户可能手动改过默认设备，用缓存会错误地跳过本该执行的切换。
 - **C# 源码注释一律用英文。** PowerShell 构建脚本与 WiX 安装包定义目前仍是中文注释与中文输出。
 
-### 改界面时请留意
-
-`MainForm.Designer.cs` 是手写的，有几个 WinForms 陷阱已经踩过，改动前请先读那几处注释：
-
-- **`AutoScaleMode` 用的是 `None`，不是 `Font`。** 因为 `AutoScaleDimensions` 写的是 `(7,17)`（默认 8.25pt 字体的度量），而窗体实际用 `YaHei UI 9pt`，两者不一致会让 WinForms 在启动时重算 `ClientSize`（820×504 变成 957×714）却不重算子控件的锚定边距。
-- **容器的 `Size` 必须在 `Controls.Add` 子控件之前先设好。** WinForms 是在子控件被加入的那一刻、按父容器的*当前*尺寸记录锚定边距的。而新建的 `GroupBox` / `Panel` / `TableLayoutPanel` 只有 200×100 —— 按最终尺寸写的坐标会因此算出**负的右边距**，导致下拉框被撑到 1124px、按钮整个跑到窗口外面。`_root`、`_audioGroup`、`_hidGroup`、`_actionPanel` 四处都有一段"种子尺寸"就是为此。
-- **设计器里不写任何文字。** 所有标题都来自 `MainForm.ApplyLocalization()`，这正是语言能够就地切换的前提。在设计器里硬写 `.Text` 会让那一处文字永远停在一种语言上。
-- **控件宽度要按英文文案留。** 英文标题比中文最多长 40%，而标签是 `AutoSize` 的，预算不够就会压到右边的控件上。
-
----
 
 ## 致谢
 

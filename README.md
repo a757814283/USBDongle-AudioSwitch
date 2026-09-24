@@ -19,6 +19,8 @@ build.
 > Inspired by [Meladon90/Audio-Switch](https://github.com/Meladon90/Audio-Switch).
 
 ---
+## Tested Devices:
+Alienware Pro Headset
 
 ## Contents
 

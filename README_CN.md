@@ -8,6 +8,8 @@ USB Wireless Headset Audio Auto-Switch 是一个小型 Windows 托盘工具，�
 
 > 本项目受 [Meladon90/Audio-Switch](https://github.com/Meladon90/Audio-Switch) 启发。
 
+<img width="1232" height="807" alt="image" src="https://github.com/user-attachments/assets/0f00272b-0770-44b9-aa2f-63ba20b7ad89" />
+
 ---
 ## 已经在以下设备通过测试:
 1. Alienware Pro Headset

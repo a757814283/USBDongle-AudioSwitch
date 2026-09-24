@@ -2,19 +2,16 @@
 
 **[中文文档 → README_CN.md](README_CN.md)**
 
-Installed as **USBDongle AudioSwitch** — the name Windows shows in Apps &
-features, in the Start menu and in Task Manager is that one, in English, whatever
-language the program itself is running in.
+USB Wireless Headset Audio Auto-Switch is a small Windows tray utility that
+watches the HID status reports a wireless headset's USB dongle emits, and flips
+the system default playback device accordingly: headphones when the headset
+powers on, speakers when it powers off — no manual switching, ever.
 
-Watches the HID status reports a USB wireless headset's dongle emits, and switches
-the Windows default playback device to the headset when it powers **on** and back
-to the speakers when it powers **off**. No manual switching at any point.
-
-This is a C# rewrite of `audio_switch.ps1`: same behaviour, same built-in
-signatures, but no resident PowerShell process and no dependency on
-`Get-PnpDevice` or an external `SoundVolumeView.exe`. The original script is still
-in the repository for reference and is copied to the output directory by the
-build.
+A C# WinForms rewrite of the original audio_switch.ps1: no resident PowerShell
+process, no Get-PnpDevice, no external SoundVolumeView.exe. It talks to
+IPolicyConfig directly, re-resolves the dongle's device path on every open so
+moving it to another USB port just works, ships a device picker with live
+signature/checksum feedback, and installs per-user with no UAC prompt.
 
 > Inspired by [Meladon90/Audio-Switch](https://github.com/Meladon90/Audio-Switch).
 

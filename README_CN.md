@@ -11,6 +11,8 @@
 > 本项目受 [Meladon90/Audio-Switch](https://github.com/Meladon90/Audio-Switch) 启发。
 
 ---
+## 已经在以下设备通过测试:
+1. Alienware Pro Headset
 
 ## 目录
 

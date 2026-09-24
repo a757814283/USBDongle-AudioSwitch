@@ -117,49 +117,6 @@ Output: `bin\Release\USBDongle_AudioSwitch.exe`
 | `-MSBuildPath <path>` | Use this `MSBuild.exe`, skipping the automatic search |
 | `-NoFrameworkPathOverride` | Do **not** fall back when the targeting pack is missing, so real environment problems surface |
 
-
-### About the targeting pack
-
-Compiling a .NET Framework 4.8 project normally needs the targeting pack, which
-ships with the Windows SDK and is absent on many machines. When the targeting pack
-is missing but the 4.8 **runtime** is present, the program runs fine — it just
-will not compile.
-
-`build.ps1` detects this and passes:
-
-```
-/p:FrameworkPathOverride=C:\Windows\Microsoft.NET\Framework64\v4.0.30319
-```
-
-so MSBuild compiles against the installed runtime assemblies instead. The script
-prints which path it actually used.
-
----
-
-> One known detail: under an **administrator account** the "Apps & features" entry
-> lands in `HKLM` rather than `HKCU`, making it visible to other users on the
-> machine. That is documented Windows Installer behaviour for `ALLUSERS=2`
-> (register machine-wide when permitted); the install itself still needs no
-> elevation and the files still go under the user's profile. Under a standard user
-> account it registers in `HKCU`.
-
-### Packaging gotchas
-
-The relevant places in the `.wxs` are commented — worth reading before changing
-anything, because WiX 4+ differs from v3 in ways that are not obvious:
-
-- `Assembly=".net"` in WiX 4+ means **install into the GAC** (in v3 it meant
-  "compare by assembly version"), and rejects assemblies without a strong name.
-- `CustomAction` no longer has an `Exe` attribute; the whole command line goes in
-  `ExeCommand`.
-
----
-
-| Command-line argument | Meaning |
-| --- | --- |
-| (none) | Start normally with the main window visible |
-| `--tray` | Start minimised to the tray without showing the window; this is the form written into the autostart entry |
-
 ### Single instance
 
 A `Local\USBDongle_AudioSwitch.SingleInstance` mutex keeps it to one instance.

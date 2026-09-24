@@ -15,7 +15,7 @@ signature/checksum feedback, and installs per-user with no UAC prompt.
 
 > Inspired by [Meladon90/Audio-Switch](https://github.com/Meladon90/Audio-Switch).
 
-<img width="970" height="640" alt="SHANA 2026-09-24 20-32-40" src="https://github.com/user-attachments/assets/4a143f0d-7d9d-4379-a56e-da3c16d007de" />
+<img alt="SHANA 2026-09-24 20-32-40" src="https://github.com/user-attachments/assets/4a143f0d-7d9d-4379-a56e-da3c16d007de" />
 
 ---
 ## Tested Devices:

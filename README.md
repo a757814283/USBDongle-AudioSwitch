@@ -2,6 +2,8 @@
 
 **[中文文档 → README_CN.md](README_CN.md)**
 
+<img width="1232" height="807" alt="image" src="https://github.com/user-attachments/assets/15b4e163-ef2c-4561-bff6-4ea9a968a0ef" />
+
 USB Wireless Headset Audio Auto-Switch is a small Windows tray utility that
 watches the HID status reports a wireless headset's USB dongle emits, and flips
 the system default playback device accordingly: headphones when the headset

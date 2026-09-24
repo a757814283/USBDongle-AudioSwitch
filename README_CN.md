@@ -2,11 +2,9 @@
 
 **[English documentation → README.md](README.md)**
 
-安装后名为 **USBDongle AudioSwitch** —— Windows 在「应用和功能」、开始菜单和任务管理器中显示的就是这个名字，固定英文，与程序界面当前用的是哪种语言无关。
+USB Wireless Headset Audio Auto-Switch 是一个小型 Windows 托盘工具，它会监视无线耳机 USB 接收器发出的 HID 状态报告，并据此切换系统默认播放设备：耳机开机时切换到耳机，关机时切换到扬声器——从此再也无需手动切换。
 
-监听 USB 无线耳机接收器（Dongle）发出的 HID 状态报告，在耳机**开机**时把 Windows 默认播放设备切到耳机，**关机**时切回扬声器。全程无需手动操作。
-
-本程序是 `audio_switch.ps1` 的 C# 重写版：相同的行为、相同的默认签名，但不再依赖 PowerShell 常驻进程，也不需要 `Get-PnpDevice` 和外部 `SoundVolumeView.exe`。原脚本仍保留在仓库中作为参考，并会随构建复制到输出目录。
+它是对原始 audio_switch.ps1 的 C# WinForms 重写：无需常驻 PowerShell 进程，不使用 Get-PnpDevice，也不依赖外部 SoundVolumeView.exe。它直接与 IPolicyConfig 交互，每次打开时都会重新解析接收器的设备路径，因此把它移到另一个 USB 端口也能直接正常工作；它还附带一个设备选择器，可提供实时签名/校验和反馈，并且按用户安装，无需 UAC 提示。
 
 > 本项目受 [Meladon90/Audio-Switch](https://github.com/Meladon90/Audio-Switch) 启发。
 
